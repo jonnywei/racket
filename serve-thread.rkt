@@ -1,0 +1,28 @@
+#lang racket
+(define (serve port-no)
+  (define listener (tcp-listen port-no 5 #t))
+  (define (loop)
+    (accept-and-handle listener)
+    (loop))
+  ;define线程，loop run in its own thread
+  (define t (thread loop))
+  (lambda ()
+    (kill-thread t)
+    (tcp-close listener)))
+  
+
+(define (accept-and-handle listener)
+  (define-values (in out) (tcp-accept listener))
+  (handle in out)
+  (close-input-port in)
+  (close-output-port out))
+
+(define (handle in out)
+  ;discard the request header 
+  (regexp-match #rx"(\r\n|^)\r\n" in)
+  ;send reply
+  (display "HTTP/1.0 200 OK\r\n" out)
+  (display "Server:racket\r\nContent-Type:text/html\r\n\r\n" out)
+  (display "<html><body>Hello,racket!</body></html>" out))
+
+
