@@ -12,14 +12,26 @@
   
 
 (define (accept-and-handle listener)
-  (define-values (in out) (tcp-accept listener))
-  (handle in out)
-  (close-input-port in)
-  (close-output-port out))
+  (define cust (make-custodian))
+  (parameterize ([current-custodian cust])
+    (define-values (in out) (tcp-accept listener))
+    ( thread 
+             (lambda()
+               (handle in out)
+               (close-input-port in)
+               (close-output-port out))))
+ 
+  ;; watch thread:
+  (thread (lambda()
+            (sleep 10)
+            (custodian-shutdown-all cust))))
+ 
 
 (define (handle in out)
   ;discard the request header 
   (regexp-match #rx"(\r\n|^)\r\n" in)
+  ; sleep random seconds
+  ;(sleep 33)
   ;send reply
   (display "HTTP/1.0 200 OK\r\n" out)
   (display "Server:racket\r\nContent-Type:text/html\r\n\r\n" out)
