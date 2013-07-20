@@ -1,0 +1,12 @@
+#lang racket
+(require scheme/class scheme/gui/base)
+(define frame(new frame% (label "painter")
+                  (width 320)
+                  (height 240)))
+
+(define canvas
+  (new canvas% (parent frame)
+       (paint-callback
+        (lambda (canvas dc) (draw-face dc )))))
+
+(send frame show #t)

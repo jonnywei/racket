@@ -1,0 +1,16 @@
+#lang racket
+(define pie 3)
+(define (piece str) (substring str 0 pie))
+
+(define (make-add-suffix s2)
+  (lambda (s ) (string-append s s2)))
+
+(define  (twice f x )
+  (f (f x)))
+
+
+
+(define x 123)
+
+(set! x "hello")
+
